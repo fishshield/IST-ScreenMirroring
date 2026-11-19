@@ -55,3 +55,10 @@ __pycache__/
 
 # Local release assets (upload to a GitHub Release)
 dist/
+
+
+node_modules/
+.venv/
+__pycache__/
+.env
+.DS_Store
