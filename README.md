@@ -1,6 +1,6 @@
 # Screen Cast Demo
 
-拓扑 A 的 Windows 桌面投屏骨架：**Flutter / Dart 运行在 Windows 主机**，Android
+Windows 桌面投屏骨架：**Flutter / Dart 运行在 Windows 主机**，Android
 设备只作为 `app_process` 捕获服务端。
 
 ```text
