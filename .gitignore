@@ -52,3 +52,6 @@ __pycache__/
 
 # Local git bundles
 *.bundle
+
+# Local release assets (upload to a GitHub Release)
+dist/

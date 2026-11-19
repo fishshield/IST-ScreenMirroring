@@ -360,8 +360,10 @@ flutter run -d windows --debug --dart-define=SCREEN_CAST_AUTOCONNECT=true
   packet 重新插入，然后交给 H.264 解码器。
 - 运行库为 FFmpeg 8.1.2 Windows x64 shared build，位于
   `third_party/ffmpeg/bin`，由 runner CMake 复制到构建输出目录。
-- 重新获取运行库：`tool/fetch_ffmpeg.ps1`。该构建为 **GPLv3**，许可证在
-  [`third_party/ffmpeg/LICENSE.txt`](third_party/ffmpeg/LICENSE.txt)。
+- 获取运行库：`tool/fetch_ffmpeg.ps1`（优先从 GitHub Release 资产下载并校验
+  `SHA256SUMS`，回退到 gyan.dev）。该构建为 **GPLv3**，许可证在
+  [`third_party/ffmpeg/LICENSE.txt`](third_party/ffmpeg/LICENSE.txt)；仓库本身
+  不提交 DLL，发布用的压缩包由 `tool/pack_ffmpeg_release.ps1` 生成。
 
 真实解码已在单测中验证：`test/assets/sample_320x180.h264` 成功解出 15 帧
 320x180 YUV420p（测试环境没有插件 DLL，因此日志里会看到
@@ -925,6 +927,12 @@ CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS)`（Android 11 / API 30+；更低版本打印
 powershell -ExecutionPolicy Bypass -File .\tool\fetch_ffmpeg.ps1
 ```
 
+脚本优先从本仓库的 **GitHub Release** 下载 `ffmpeg-8.1.2-shared-win64.zip`
+（tag `ffmpeg-8.1.2`；URL 从 `origin` remote 自动推导，也可用 `-ReleaseUrl`
+或 `SCREENCAST_FFMPEG_RELEASE` 指定），并用 `third_party/ffmpeg/SHA256SUMS`
+校验 DLL；Release 不存在时回退到 gyan.dev 的 7z 包。发布用的 zip 用
+`tool/pack_ffmpeg_release.ps1` 生成（约 35 MB）。
+
 ### 2. 编译服务端 jar
 
 ```powershell
@@ -948,8 +956,8 @@ flutter test
 flutter run -d windows
 ```
 
-`windows/` runner 已保留。本机的 Visual Studio Build Tools 2026 位于
-`D:\VSBuildTools`（MSVC v143 + Windows SDK 10.0.26100），Flutter 通过 vswhere
+`windows/` runner 已保留。构建使用 Visual Studio Build Tools 2026
+（MSVC v143 + Windows SDK 10.0.26100），Flutter 通过 vswhere
 识别它。无需安装 VS IDE；`flutter build windows` / `flutter run -d windows`
 已经可用。
 
@@ -1401,7 +1409,7 @@ flutter build windows --debug
 
 - 找不到 FFmpeg DLL：确认 `third_party/ffmpeg/bin/avcodec-62.dll` 存在，或运行
   `tool/fetch_ffmpeg.ps1`。
-- 找不到 Build Tools：`vswhere` 应找到 `D:\VSBuildTools`；Flutter doctor 的 Windows
+- 找不到 Build Tools：`vswhere` 应能找到 MSVC；Flutter doctor 的 Windows
   项应为绿色。
 - 有线连接失败：确认 `adb devices` 只有一个 `device`，并检查 forward
   `adb forward --list`（有线模式应有 `tcp:27183` 与 `tcp:27184` 两条）。
@@ -1492,7 +1500,7 @@ adb install -r app\build\outputs\apk\debug\app-debug.apk
 
 ## 验证环境
 
-- Windows：`D:\VSBuildTools`，MSVC v143，Windows SDK 10.0.26100，无 VS IDE；
+- Windows：Visual Studio Build Tools，MSVC v143，Windows SDK 10.0.26100，无 VS IDE；
   显示器 1920×1200 @125% DPI（视频窗口尺寸均为物理像素）
 - Flutter：Windows desktop runner，D3D11
 - ADB：`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`

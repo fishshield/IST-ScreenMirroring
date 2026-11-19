@@ -297,7 +297,7 @@ Flutter Windows embedder 的 `PlatformViewPlugin` 目前没有实现真实的平
 
 ### 已验证
 
-- Visual Studio Build Tools 2026（`D:\VSBuildTools`，MSVC v143 + Windows SDK
+- Visual Studio Build Tools 2026（MSVC v143 + Windows SDK
   10.0.26100，无 IDE）编译 `screen_cast_demo.exe` 和
   `screen_cast_windows_plugin.dll` 成功。
 - 应用启动后 overlay 可见，标题显示 `Win32 · D3D11`。

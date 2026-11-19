@@ -1,18 +1,22 @@
 # FFmpeg runtime (Windows x64)
 
-本目录为 **本地运行库缓存**，不提交到版本控制（见根 `.gitignore`）。
+本目录为 **本地运行库缓存**，DLL 不提交到版本控制（见根 `.gitignore`）。
 运行时只需要以下三个 DLL：
 
 - `avcodec-62.dll`
 - `avutil-60.dll`
 - `swresample-6.dll`
 
-来源：
+来源与分发：
 
 - Gyan Doshi FFmpeg builds，`ffmpeg-8.1.2-full_build-shared.7z`
   <https://www.gyan.dev/ffmpeg/builds/>
 - 该共享构建按 **GPLv3** 分发；许可证随包保存在 `LICENSE.txt`。
-- 下载、校验和复制可用 `tool/fetch_ffmpeg.ps1` 重现。
+- **推荐获取方式**：从本仓库的 GitHub Release（tag `ffmpeg-8.1.2`）下载
+  `ffmpeg-8.1.2-shared-win64.zip`；`tool/fetch_ffmpeg.ps1` 会优先使用它，
+  用 `SHA256SUMS` 校验 DLL，失败时回退到上游 7z。
+- 发布用的 zip 由 `tool/pack_ffmpeg_release.ps1` 生成（含 DLL、许可证、
+  构建说明与 `SHA256SUMS`）。
 
 ## 为什么是 shared 构建
 
