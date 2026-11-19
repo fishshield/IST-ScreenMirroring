@@ -1,0 +1,19 @@
+name: screen_cast_android
+description: Android MethodChannel bridge for the screen-cast demo skeleton.
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.screencast.android
+        pluginClass: ScreenCastAndroidPlugin

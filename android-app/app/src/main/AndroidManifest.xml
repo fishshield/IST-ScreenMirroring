@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Ongoing foreground-service notification for the capture server. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Android 14+ requires the type-specific permission for specialUse. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- UDP/27185 LAN discovery beacon (payload carries no secrets). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries>
+        <!-- Shizuku manager: needed both to request the shell binder and to
+             launch its UI when it is not running (package visibility, API 30+). -->
+        <package android:name="moe.shizuku.privileged.api" />
+    </queries>
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ScreenCast">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!--
+                Long-pressing a Quick Settings tile normally opens the App Info
+                screen. Declaring this action on MainActivity makes the system
+                launch MainActivity instead; TileService has no long-press
+                callback, so this intent filter is the only supported route.
+                The system supplies the tile ComponentName in the intent.
+            -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            Quick Settings tile (Android 7.0 / API 24+). Protected by
+            BIND_QUICK_SETTINGS_TILE so only the system can bind it.
+        -->
+        <service
+            android:name=".ScreenCastTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile"
+            android:label="@string/tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <!-- API 24+: tells the system this tile drives long-lived work. -->
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="true" />
+            <!--
+                API 34+: marks the tile as a toggle so the collapsed-state tap
+                toggles it instead of expanding the tile detail panel. Ignored
+                on older releases.
+            -->
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
+        </service>
+
+        <!--
+            The desktop starts the capture server over ADB and tells the app
+            through this receiver, otherwise the Quick Settings tile would keep
+            claiming "已停止". Protected by DUMP (held by the adb shell) so
+            ordinary apps cannot forge session state.
+        -->
+        <receiver
+            android:name=".CastStateReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.example.screencast.action.SERVER_STARTED" />
+                <action android:name="com.example.screencast.action.SERVER_STOPPED" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+            Owns the lifetime of the Shizuku-launched capture process so the
+            session survives the controller UI being backgrounded or reclaimed.
+            `specialUse` is the only fitting type: capture happens in a
+            user-authorized shell process, not through MediaProjection, and the
+            subtype reason below is required by Android 14+.
+        -->
+        <service
+            android:name=".ScreenCastForegroundService"
+            android:exported="${fgsExported}"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Mirrors the device screen through a user-authorized Shizuku shell capture process and keeps that process alive while the controller UI is in the background." />
+        </service>
+
+        <!--
+            Shizuku's provider must be exported and protected by the signature
+            permission. The app never implements ADB or elevation itself.
+        -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    </application>
+</manifest>

@@ -1,0 +1,54 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Android / Gradle
+.gradle/
+local.properties
+captures/
+*.apk
+*.aab
+*.jar
+!android-server/gradle/wrapper/gradle-wrapper.jar
+!assets/server/screencast-server.jar
+
+# Native build output
+android-server/build/
+android-server/out/
+packages/screen_cast_android/android/build/
+
+# Downloaded FFmpeg runtime (recreate with tool/fetch_ffmpeg.ps1)
+third_party/ffmpeg/bin/
+third_party/ffmpeg/include/
+third_party/ffmpeg/lib/
+third_party/ffmpeg/*.zip
+
+# Local test artifacts (UI dumps, screenshots, logs) at the repo root
+/*.xml
+/*.png
+/*.log
+
+# OS
+.DS_Store
+Thumbs.db
+/*.err
+
+# Python helper scripts
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local git bundles
+*.bundle

@@ -1,0 +1,18 @@
+name: screen_cast_windows
+description: Win32 child-window bridge for the desktop screen-cast demo.
+version: 0.1.0
+publish_to: "none"
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      windows:
+        pluginClass: ScreenCastWindowsPluginCApi
